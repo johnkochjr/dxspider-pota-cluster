@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  dxspider-pota:
+    build: .
+    container_name: dxspider-pota
+    ports:
+      - "7300:7300"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes:
+      - spider-data:/home/sysop/spider/data
+      - spider-logs:/home/sysop/spider/local_cmd
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "7300"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - dxnet
+
+volumes:
+  spider-data:
+    driver: local
+  spider-logs:
+    driver: local
+
+networks:
+  dxnet:
+    driver: bridge

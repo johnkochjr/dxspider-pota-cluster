@@ -1,0 +1,23 @@
+# Environment files
+.env
+
+# Docker
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# DXSpider data (if you mount locally for testing)
+data/
