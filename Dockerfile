@@ -1,39 +1,49 @@
-FROM debian:bullseye-slim
-
+#FROM debian:bullseye-slim
+FROM --platform=linux/amd64 debian:bullseye-slim
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
     perl \
     build-essential \
     libcurses-perl \
+    libtimedate-perl \
+    libdigest-sha-perl \
     python3 \
     python3-pip \
     telnet \
     netcat \
     procps \
+    wget \
+    socat \
+    libnet-cidr-lite-perl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+    # Install Python dependencies
 RUN pip3 install requests
 
 # Create sysop user
 RUN useradd -m -s /bin/bash sysop
 
 # Switch to sysop user
-USER sysop
+USER root
 WORKDIR /home/sysop
 
-# Clone and install DXSpider
-RUN git clone git://scm.dxcluster.org/scm/spider && \
-    cd spider && \
-    perl Makefile.PL && \
-    make
+# Download 
+RUN wget http://www.dxcluster.org/download/spider-1.55.tar.gz && \
+    tar -xzf spider-1.55.tar.gz && \
+    rm spider-1.55.tar.gz && \
+    chown -R sysop:sysop spider && \
+    ln -s /home/sysop/spider /spider
+
+USER sysop
 
 # Copy application files
-COPY --chown=sysop:sysop config/dxvars.pm /home/sysop/spider/local/DXVars.pm
+# Copy application files
 COPY --chown=sysop:sysop scripts/pota_bridge.py /home/sysop/pota_bridge.py
+COPY --chown=sysop:sysop scripts/telnet_server.py /home/sysop/telnet_server.py
 COPY --chown=sysop:sysop scripts/start.sh /home/sysop/start.sh
 
+RUN chmod +x /home/sysop/start.sh /home/sysop/pota_bridge.py /home/sysop/telnet_server.py
 RUN chmod +x /home/sysop/start.sh /home/sysop/pota_bridge.py
 
 # Expose cluster port
