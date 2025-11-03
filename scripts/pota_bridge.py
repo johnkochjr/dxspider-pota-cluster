@@ -97,9 +97,9 @@ class DXSpiderConnection:
             freq_mhz = f"{freq:.4f}"
             
             # Build command with explicit spacing - tab or multiple spaces
-            cmd = f"dx {freq_mhz} {callsign} {comment}\r\n"
+            cmd = f"dx {freq_mhz} {callsign} {comment}\n"
             
-            self.sock.send(cmd.encode())
+            self.sock.send(cmd.encode('ascii'))
             time.sleep(0.2)
             
             return True
@@ -145,15 +145,15 @@ def process_spots(dx_conn):
             continue
         
         # Format comment
-        comment = f"POTA {reference}"
-        if location:
-            comment += f" {location[:20]}"
+        comment = f"{reference} "
+        # if location:
+        #     comment += f" {location[:20]}"
         
         # Send spot to DXSpider
         if dx_conn.send_spot(freq_mhz, activator, comment):
             seen_spots.add(spot_id)
             new_spots += 1
-            log(f"Spotted: {activator} on {freq_mhz} MHz - {comment}")
+            log(f"Spotted: DX de AI5KP: {frequency} {activator} [Time in UTC] {comment}")
     
     if new_spots > 0:
         log(f"Added {new_spots} POTA spots")
