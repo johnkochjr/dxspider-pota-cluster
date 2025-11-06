@@ -85,7 +85,7 @@ class DXSpiderConnection:
             self.connected = False
             return False
     
-    def send_spot(self, freq, callsign, comment):
+    def send_spot(self, spotter, freq, callsign, comment):
         """Send a DX spot"""
         if not self.connected:
             if not self.connect():
@@ -97,7 +97,7 @@ class DXSpiderConnection:
             freq_mhz = f"{freq:.4f}"
             
             # Build command with explicit spacing - tab or multiple spaces
-            cmd = f"dx {freq_mhz} {callsign} {comment}\n"
+            cmd = f"dx by {spotter} {freq_mhz} {callsign} {comment}\n"
             
             self.sock.send(cmd.encode('ascii'))
             time.sleep(0.2)
@@ -131,7 +131,7 @@ def process_spots(dx_conn):
         frequency = spot.get('frequency', '').strip()
         reference = spot.get('reference', '').strip()
         location = spot.get('locationDesc', '').strip()
-        
+        spotter = spot.get('spotter', '').strip()
         if not activator or not frequency or not reference:
             continue
         
@@ -150,10 +150,10 @@ def process_spots(dx_conn):
         #     comment += f" {location[:20]}"
         
         # Send spot to DXSpider
-        if dx_conn.send_spot(freq_mhz, activator, comment):
+        if dx_conn.send_spot(spotter, freq_mhz, activator, comment):
             seen_spots.add(spot_id)
             new_spots += 1
-            log(f"Spotted: DX de AI5KP: {frequency} {activator} [Time in UTC] {comment}")
+            log(f"Spotted: DX de {spotter}: {frequency} {activator} [Time in UTC] {comment}")
     
     if new_spots > 0:
         log(f"Added {new_spots} POTA spots")

@@ -221,7 +221,7 @@ def process_output(data):
 
     # Limit consecutive blank lines to 1
     result = re.sub(r'\n{3,}', '\n\n', result)
-
+    result += '\n'
     return result.encode('utf-8')
 
 
